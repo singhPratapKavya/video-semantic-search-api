@@ -2,16 +2,38 @@
 
 A FastAPI-based application using CLIP embeddings and FAISS for efficient semantic search across video frames.
 
-## Features
+## System Design
 
-*   **Video Processing:** Extracts frames from video files at a configurable FPS.
-*   **Embedding Generation:** Uses OpenAI's CLIP model to generate image embeddings for each frame.
-*   **Duplicate Detection:** Implements perceptual hashing (phash) and embedding similarity checks to filter out near-duplicate frames, storing only unique ones.
-*   **Efficient Search:** Stores embeddings in a FAISS (IndexFlatIP) index for fast cosine similarity searches.
-*   **API:** Provides a REST API endpoint (`/api/v1/search`) to search for frames using text queries.
-*   **Static Frame Serving:** Serves the matched frame images via a static endpoint.
-*   **Configuration:** Uses Pydantic's `BaseSettings` for easy configuration via environment variables or a `.env` file.
-*   **GPU Acceleration:** Supports CUDA for faster model inference and processing if available.
+### 1. Process Videos (Video Processing Pipeline)
+* **Input Collection**: Videos are collected from the configured directory (`VIDEO_DIR`)
+* **Frame Extraction**: Frames are extracted at specified FPS from input videos
+* **CLIP Embedding Generation**: Each frame is processed through CLIP model to generate embeddings
+* **Duplicate Detection**: Similar frames are identified and filtered out to reduce redundancy
+* **FAISS Index Building**: Frame embeddings are used to build a FAISS index for efficient vector search
+* **Storage**: Unique frames are saved to disk for later retrieval during search
+
+![Video Processing Pipeline](docs/key_components/video_processing.png)
+
+### 2. API Startup
+* **Configuration Loading**: Environment variables and settings are loaded from config.py
+* **Resource Initialization**: CLIP model and processor are loaded into memory
+* **FAISS Service**: Pre-built FAISS index is loaded from disk into memory
+* **Frame Processor**: Service for processing search results is initialized
+* **Exception Handlers**: Custom handlers are registered (including 400 override for validation errors)
+* **Middleware Setup**: CORS and other middleware components are configured
+* **Route Registration**: API endpoints are registered with FastAPI
+
+![API Startup Process](docs/key_components/api_startup.png)
+
+### 3. Inference Pipeline
+* **Query Reception**: API receives text query via GET request
+* **Text Embedding**: Query text is converted to CLIP embedding vector
+* **Vector Search**: FAISS index performs similarity search between query embedding and frame embeddings
+* **Result Ranking**: Frames are ranked by similarity score
+* **URL Generation**: Image URLs are generated for the top-k matching frames
+* **Response Formatting**: Results are formatted into JSON and returned to client
+
+![Inference Pipeline](docs/key_components/inference_pipeline.png)
 
 ## Test Results
 
@@ -22,6 +44,7 @@ A FastAPI-based application using CLIP embeddings and FAISS for efficient semant
 | "ember holding phone" | <img src="docs/test_results/holding_phone_1.jpg" width="150" /> | <img src="docs/test_results/holding_phone_2.jpg" width="150" /> | <img src="docs/test_results/holding_phone_3.jpg" width="150" /> | <img src="docs/test_results/holding_phone_4.jpg" width="150" /> |
 
 *Note: The images above show example search results from our test runs. Due to the nature of CLIP embeddings and FAISS indexing, different systems might return slightly different but semantically similar results for the same query. The quality and relevance of results should remain consistent across different runs.*
+
 
 ## Prerequisites
 
