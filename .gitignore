@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+logs/
+data/videos/*
+data/faiss_index/*
+app/static/frames/*
+.env
+
+# Keep directories but ignore contents
+!data/videos/.gitkeep
+!data/faiss_index/.gitkeep
+!app/static/frames/.gitkeep
+!logs/.gitkeep
+
+# Temp files
+*.mp4
+temp_clip_*
+*.temp
+*.tmp 

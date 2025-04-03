@@ -1,0 +1,1 @@
+"""CLI scripts for the video frame search application.""" 

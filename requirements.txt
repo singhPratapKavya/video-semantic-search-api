@@ -1,0 +1,14 @@
+torch
+transformers
+pillow
+numpy
+tqdm
+fastapi
+uvicorn[standard]
+python-multipart
+opencv-python-headless
+python-dotenv 
+faiss-cpu
+imagehash
+scikit-learn
+pydantic-settings
