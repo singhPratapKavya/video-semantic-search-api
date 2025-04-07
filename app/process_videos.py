@@ -8,11 +8,6 @@ import torch # Needed for device check
 from typing import Tuple
 from transformers import CLIPModel, CLIPProcessor # Import types used in Tuple
 
-# Remove sys.path manipulation - Run as a module or set PYTHONPATH
-# project_root = str(Path(__file__).parent.parent)
-# if project_root not in sys.path:
-#     sys.path.append(project_root)
-
 # Import necessary components
 from app.services.video.processor import VideoProcessor
 from app.services.search.faiss_service import FAISSService

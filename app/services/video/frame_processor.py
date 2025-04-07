@@ -33,22 +33,12 @@ class FrameProcessor:
                 # Ensure it's treated as a relative path
                 relative_frame_path = Path(relative_frame_path_str)
 
-                # Construct path relative to the base URL's static path
-                # Assume the base static path for frames is /static/frames/
-                static_path = Path("static") / "frames" / relative_frame_path
-
-                # Convert to URL path format (forward slashes)
-                url_path_segment = static_path.as_posix()
-
-                # URL encode the path segment *carefully*
-                # We only want to encode the filename part usually, not the slashes
-                # However, full encoding is safer if filenames might have special chars
-                # Let's encode the whole segment for safety, matching previous behavior
-                encoded_path_segment = urllib.parse.quote(url_path_segment)
-
-                # Create a full URL
-                # Ensure no double slashes between base_url and segment
-                full_url = f"{self.base_url.rstrip('/')}/{encoded_path_segment.lstrip('/')}"
+                # Construct URL for the frame
+                static_url_path = f"static/frames/{relative_frame_path}"
+                # URL encode while preserving path structure
+                encoded_path = urllib.parse.quote(static_url_path)
+                # Create full URL
+                full_url = f"{self.base_url.rstrip('/')}/{encoded_path}"
 
                 # Create result dictionary with image_url only
                 processed_result = {

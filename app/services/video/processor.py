@@ -61,30 +61,24 @@ class VideoProcessor:
         logger.info("3. Duplicate Detection (using DuplicateDetector)")
         logger.info("4. FAISS Storage")
         
-        try:
-            # Initialize Duplicate Detector using settings
-            self.duplicate_detector = DuplicateDetector(
-                clip_model=self.clip_model,
-                clip_processor=self.clip_processor,
-                hash_threshold=self.hash_threshold,
-                window_size=self.window_size
-            )
-            
-            # Create directories
-            ensure_directory(self.frames_dir)
-            
-            # Initialize statistics
-            self.processed_videos = set()
-            self.total_frames_extracted = 0
-            self.total_duplicate_frames = 0
-            self.total_frames_stored = 0
-            
-            logger.info("Video Processor initialized successfully")
-        except Exception as e:
-            logger.error(f"Error initializing VideoProcessor: {str(e)}", exc_info=True)
-            if "device type" in str(e):
-                logger.error("CUDA device mismatch detected. Try running with --use-cpu flag.")
-            raise
+        # Initialize Duplicate Detector using settings
+        self.duplicate_detector = DuplicateDetector(
+            clip_model=self.clip_model,
+            clip_processor=self.clip_processor,
+            hash_threshold=self.hash_threshold,
+            window_size=self.window_size
+        )
+        
+        # Create directories
+        ensure_directory(self.frames_dir)
+        
+        # Initialize statistics
+        self.processed_videos = set()
+        self.total_frames_extracted = 0
+        self.total_duplicate_frames = 0
+        self.total_frames_stored = 0
+        
+        logger.info("Video Processor initialized successfully")
     
     def process_frame(self, frame: np.ndarray, timestamp: float, video_name: str, frame_index: int) -> Tuple[Optional[Dict[str, Any]], Optional[np.ndarray]]:
         """

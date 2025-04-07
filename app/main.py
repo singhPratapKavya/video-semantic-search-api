@@ -4,7 +4,7 @@ import sys
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-from fastapi import FastAPI, Depends, Request, HTTPException
+from fastapi import FastAPI, Depends, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,13 +35,13 @@ app_state = {}
 def get_faiss_service() -> FAISSService:
     service = app_state.get("faiss_service")
     if not service:
-        raise HTTPException(status_code=503, detail="FAISS Service not available.")
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="FAISS Service not available.")
     return service
 
 def get_frame_processor() -> FrameProcessor:
     service = app_state.get("frame_processor")
     if not service:
-        raise HTTPException(status_code=503, detail="Frame Processor Service not available.")
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Frame Processor Service not available.")
     return service
 
 # --- Import Routers AFTER Getters are Defined --- #
@@ -138,7 +138,7 @@ app.openapi = custom_openapi
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
-        status_code=400,  # Changed from 422 to 400
+        status_code=status.HTTP_400_BAD_REQUEST,  # Changed from 422 to 400
         content={"detail": exc.errors()},
     )
 
@@ -146,7 +146,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def faiss_service_exception_handler(request: Request, exc: FAISSServiceError):
     logger.error(f"FAISS Service error: {exc}", exc_info=True)
     return JSONResponse(
-        status_code=503, # Service Unavailable
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE, # Service Unavailable
         content={"message": f"Search index operation failed: {exc}"},
     )
 
@@ -154,7 +154,7 @@ async def faiss_service_exception_handler(request: Request, exc: FAISSServiceErr
 async def video_processing_exception_handler(request: Request, exc: VideoProcessingError):
     logger.error(f"Video Processing error: {exc}", exc_info=True)
     return JSONResponse(
-        status_code=500, # Internal Server Error (adjust if needed)
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, # Internal Server Error (adjust if needed)
         content={"message": f"Video processing failed: {exc}"},
     )
 
@@ -162,7 +162,7 @@ async def video_processing_exception_handler(request: Request, exc: VideoProcess
 async def value_error_exception_handler(request: Request, exc: ValueError):
     logger.warning(f"Invalid value encountered: {exc}", exc_info=True)
     return JSONResponse(
-        status_code=400, # Bad Request
+        status_code=status.HTTP_400_BAD_REQUEST, # Bad Request
         content={"message": f"Invalid input or value: {exc}"},
     )
 
@@ -171,7 +171,7 @@ async def value_error_exception_handler(request: Request, exc: ValueError):
 async def generic_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
     return JSONResponse(
-        status_code=500, # Internal Server Error
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, # Internal Server Error
         content={"message": "An unexpected internal server error occurred."},
     )
 
@@ -220,7 +220,7 @@ async def health_check():
         return {"status": "ok"}
     else:
         missing = [s for s in ["faiss_service", "frame_processor"] if s not in app_state]
-        raise HTTPException(status_code=503, detail=f"Service not ready. Missing: {missing}")
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"Service not ready. Missing: {missing}")
 
 # --- Main Execution --- #
 

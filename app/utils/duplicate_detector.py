@@ -6,15 +6,9 @@ from typing import List, Tuple, Optional, Dict
 import faiss
 from transformers import CLIPModel, CLIPProcessor
 from app.core.config import settings
+from app.utils.image_ops import bgr_to_rgb
 
 class DuplicateDetector:
-    # Constants
-    RECENT_HASH_CHECK_COUNT = 5
-    LSH_SEARCH_K = 10
-    LSH_UPDATE_FREQUENCY = 100
-    LSH_BITS = 8
-    EMBEDDING_DIM = 768
-    
     def __init__(self,
                  clip_model: CLIPModel,
                  clip_processor: CLIPProcessor,
@@ -39,8 +33,8 @@ class DuplicateDetector:
 
     def compute_image_hash(self, image: np.ndarray) -> imagehash.ImageHash:
         """Compute perceptual hash for an image."""
-        # Convert from BGR to RGB
-        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # Convert from BGR to RGB using the utility function
+        rgb_image = bgr_to_rgb(image)
         # Convert to PIL image
         pil_image = Image.fromarray(rgb_image)
         # Compute the hash
@@ -76,8 +70,8 @@ class DuplicateDetector:
         # Convert embeddings to float32 for FAISS
         embeddings_array = np.array(self.frame_embeddings).astype('float32')
         
-        # Create LSH index
-        self.lsh_index = faiss.IndexLSH(self.EMBEDDING_DIM, self.LSH_BITS)  # Use constants
+        # Create LSH index - use settings values
+        self.lsh_index = faiss.IndexLSH(settings.EMBEDDING_DIM, settings.LSH_BITS)
         self.lsh_index.add(embeddings_array)
 
     def is_duplicate(self, frame: np.ndarray, frame_embedding: np.ndarray) -> Tuple[bool, Optional[np.ndarray]]:
@@ -94,7 +88,7 @@ class DuplicateDetector:
         """
         # Stage 1: Quick perceptual hash check with recent frames
         frame_hash = self.compute_image_hash(frame)
-        for recent_frame in self.recent_frames[-self.RECENT_HASH_CHECK_COUNT:]:
+        for recent_frame in self.recent_frames[-settings.RECENT_HASH_CHECK_COUNT:]:
             if self.hash_difference(frame_hash, recent_frame['hash']) < self.hash_threshold:
                 return True, None
 
@@ -106,14 +100,14 @@ class DuplicateDetector:
 
         # If not found in recent frames, use LSH for approximate search
         if len(self.frame_embeddings) > self.window_size:
-            if self.lsh_index is None or len(self.frame_embeddings) % self.LSH_UPDATE_FREQUENCY == 0:
+            if self.lsh_index is None or len(self.frame_embeddings) % settings.LSH_UPDATE_FREQUENCY == 0:
                 self.update_lsh_index()
 
             if self.lsh_index:
                 # Search using LSH index
                 distances, indices = self.lsh_index.search(
                     np.array([frame_embedding]).astype('float32'),
-                    k=self.LSH_SEARCH_K
+                    k=settings.LSH_SEARCH_K
                 )
 
                 # Check potential matches

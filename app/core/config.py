@@ -31,8 +31,12 @@ class Settings(BaseSettings):
     FAISS_INDEX_DIR: Path = DATA_DIR / "faiss_index"
 
     # --- Model Configuration ---
-    CLIP_MODEL_NAME: str = "openai/clip-vit-large-patch14"
-    EMBEDDING_DIM: int = 768 # Tied to CLIP_MODEL_NAME, update if model changes
+    # CLIP_MODEL_NAME: str = "openai/clip-vit-large-patch14"
+    # EMBEDDING_DIM: int = 768 # Tied to CLIP_MODEL_NAME, update if model changes
+
+    # --- Model Configuration ---
+    CLIP_MODEL_NAME: str = "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
+    EMBEDDING_DIM: int = 1024 # Updated for laion/CLIP-ViT-H-14-laion2B-b79K
 
     # --- Device Configuration ---
     FORCE_CPU: bool = False
@@ -47,6 +51,9 @@ class Settings(BaseSettings):
     HASH_THRESHOLD: int = 5            # Max difference for phash
     WINDOW_SIZE: int = 10              # Recent embeddings check window
     LSH_BITS: int = 128                # FAISS LSH bits (if LSH is used)
+    RECENT_HASH_CHECK_COUNT: int = 5   # Number of recent frames to check with hash
+    LSH_SEARCH_K: int = 10             # Number of neighbors to search in LSH
+    LSH_UPDATE_FREQUENCY: int = 100    # Frequency of LSH index updates
 
     # --- Video Processing Script ---
     ALLOWED_VIDEO_EXTENSIONS: List[str] = ['.mp4', '.avi', '.mov']

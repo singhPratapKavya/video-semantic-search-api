@@ -5,6 +5,7 @@ import numpy as np
 import logging
 from typing import Dict, Any, List, Tuple, Optional, Union
 from transformers import CLIPProcessor, CLIPModel
+from app.utils.image_ops import bgr_to_rgb
 
 logger = logging.getLogger(__name__)
 
@@ -58,8 +59,8 @@ def generate_image_embedding(
     # Get the actual device model is on
     model_device = next(model.parameters()).device
     
-    # Convert BGR to RGB
-    image_rgb = image[..., ::-1]
+    # Convert BGR to RGB using the utility function
+    image_rgb = bgr_to_rgb(image)
     
     # Prepare image for CLIP
     inputs = processor(

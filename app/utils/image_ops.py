@@ -27,6 +27,19 @@ def video_capture(video_path: Union[str, Path]):
         cap.release()
 
 
+def bgr_to_rgb(image: np.ndarray) -> np.ndarray:
+    """
+    Convert BGR image (OpenCV format) to RGB.
+    
+    Args:
+        image: BGR image as numpy array
+        
+    Returns:
+        RGB image as numpy array
+    """
+    return image[..., ::-1]  # Reverse the color channels
+
+
 def extract_frames(
     video_path: Union[str, Path],
     fps: float,
@@ -84,8 +97,4 @@ def save_frame(frame: np.ndarray, output_path: Union[str, Path]) -> None:
         frame: Frame to save
         output_path: Path to save frame to
     """
-    # Ensure the parent directory exists (optional, but good practice)
-    # path = Path(output_path)
-    # path.parent.mkdir(parents=True, exist_ok=True)
-    
     cv2.imwrite(str(output_path), frame)

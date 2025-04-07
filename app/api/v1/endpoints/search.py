@@ -70,7 +70,7 @@ async def get_frame(frame_path: str) -> FileResponse:
             "description": "Successful response with search results"
         },
         503: {
-            "description": "Service Unavailable"
+            "description": "Service Unavailable - Search service is not available"
         }
     },
     openapi_extra={"x-no-422": True}  # Custom hint to remove 422 from schema
@@ -84,6 +84,7 @@ def search(
 ) -> ApiResponse:
     """Search for frames matching the query text."""
     
+    # Process all queries directly
     logger.info(f"Processing search query: '{query}' with top_k={top_k}")
     search_results = frame_processor.search_frames(query, top_k=top_k)
     
